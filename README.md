@@ -13,6 +13,17 @@ void foo()
 
 Note: the return type is not encoded here (although there are cases where it is encoded: function pointers and funtion template instances)
 
+### Encoding parameters
+
+Basic types are encoded using a single letter.
+eg. `void foo(int)` is encoded `_Z3fooi`
+
+No parameter is encoded as if a single void parameter were passed.
+eg. `void foo()` is encoded `_Z3foov`
+
+Parameters are encoded one after the other.
+eg. `void foo(char, int, short)` is encoded `_Z3foocis`
+
 ### Substitutions
 
 To save space a compression scheme is used where symbols that appears multiple times are then substituted by an item from the sequence : `S_`, `S0_`, `S1_`, `S2_`, etc ...
@@ -64,7 +75,7 @@ Note: `std` is not substituted since it is an abbreviation.
 
 ### Structs/Classes
 
-Member functions are encoded as if they were in a namespace with the exception of const members.
+Member functions are encoded as if they were in a namespace with the exception of const members which starts with a `K`.
 
 ```
 class C {
@@ -75,8 +86,3 @@ class C {
  - `C::foo` is encoded as `NK1C3fooE`
    - `K` is added at the beginning of the symbol because `foo` is `const`.
    - It is enclosed by `N`..`E` (symbol is nested)
- - `v` no parameter is encoded as a `void` parameter.
-
-### Encoding parameters
-
-
