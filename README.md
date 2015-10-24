@@ -11,6 +11,8 @@ Is mangled as `_Z3foov`
 - `3foo` function name, length encoded.
 - `v` no parameter is encoded as a `void` parameter.
 
+Note: the return type is not encoded here (although there are cases where it is encoded: function pointers and funtion template instances)
+
 ## Substitutions
 
 To save space a compression scheme is used where symbols that appears multiple times are then substituted by an item from the sequence : `S_`, `S0_`, `S1_`, `S2_`, etc ...
@@ -24,3 +26,5 @@ would be encoded as `_Z3fooPvS_`. To be decomposed as
 - `3foo`
 - `Pv` stands for "pointer to void". Since it's not a basic type it's accounted as a symbol.
 - `S_` refers to the first symbol encoded, here `Pv`.
+
+Note: `foo` is a declaration, not a type and so it doesn't account as a substituable symbol.
