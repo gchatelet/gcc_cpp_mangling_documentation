@@ -31,7 +31,7 @@ Note: `foo` is a declaration, not a type and so it doesn't account as a substitu
 
 ### namespace
 
-namespaces are considered as symbols
+namespaces are considered as symbols.
 
 ```
 namespace a {
@@ -48,3 +48,16 @@ namespace a {
   - enclosed in `N`..`E` (symbol is nested, non const and not in `std`)
   - `a` is encoded `S_`
   - `A` is encoded `1A`
+
+Note: if namespace is `std` then it is abbreviated and nested symbol are no more enclosed in `N`..`E`
+```
+namespace std {
+	struct A{};
+	void foo(A){}
+}
+```
+`foo` is encoded as `_ZSt3fooSt1A`
+ - `std::foo` is encoded as `St3foo`
+ - `std::A` is encoded as `St1A`
+
+Note: `std` is not substituted since it is an abbreviation.
