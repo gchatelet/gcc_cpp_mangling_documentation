@@ -41,11 +41,11 @@ namespace a {
 ```
 `foo` would be encoded as `_ZN1a3fooENS_1AE`
 - `a::foo` is encoded as `N1a3fooE`
-  - It is enclosed by `N`..`E` (symbol is nested, non const and namespace is not `std`)
+  - It is enclosed by `N`..`E` (symbol is nested and not in `std`)
   - `a` is encoded `1a`
   - `foo` is encoded `3foo`
 - `a::A` is encoded `NS_1AE`
-  - enclosed in `N`..`E` (symbol is nested, non const and not in `std`)
+  - enclosed in `N`..`E` (symbol is nested and not in `std`)
   - `a` is encoded `S_`
   - `A` is encoded `1A`
 
@@ -61,3 +61,22 @@ namespace std {
  - `std::A` is encoded as `St1A`
 
 Note: `std` is not substituted since it is an abbreviation.
+
+### Structs/Classes
+
+Member functions are encoded as if they were in a namespace with the exception of const members.
+
+```
+class C {
+	void foo() const {}
+};
+```
+`foo` is encoded as `_ZNK1C3fooEv`
+ - `C::foo` is encoded as `NK1C3fooE`
+   - `K` is added at the beginning of the symbol because `foo` is `const`.
+   - It is enclosed by `N`..`E` (symbol is nested)
+ - `v` no parameter is encoded as a `void` parameter.
+
+### Encoding parameters
+
+
