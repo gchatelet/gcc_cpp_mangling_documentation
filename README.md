@@ -41,8 +41,8 @@ Note: `foo` is a declaration, not a type and so it doesn't account as a substitu
   - eg. `void foo(char, int, short)` is encoded `_Z3foocis`. None of `char`, `int` or `short` are substitutable.
 
 - Indirections (pointer/reference) and type qualifiers are prepended to the type. Each indirection / type qualifier accounts for a new symbol.
-  - eg. `void foo(int)` is encoded `_Z3fooi`
-  - eg. `void foo(const int)` is encoded `_Z3fooi`
+  - eg. `void foo(int)` is encoded `_Z3fooi`. No substitution.
+  - eg. `void foo(const int)` is encoded `_Z3fooi`. No substitution.
   - eg. `void foo(const int*)` is encoded `_Z3fooPKi`
     - `Ki` becomes `S_`
     - `PKi` becomes `S0_`
@@ -58,7 +58,7 @@ Note: `foo` is a declaration, not a type and so it doesn't account as a substitu
     - `Pi` becomes `S_`
     - `RPi` becomes `S0_`
 
-Note: `const int` is encoded as `int`, more generally constness of the type is not part of the signature (but constness of indirect types is).
+Note: `const int` alone is encoded as `int`, more generally constness of the type is not part of the signature (but constness of indirect types are).
 
 - Functions are encoded between `F`..`E` and prepended with `P` for function pointer (`R` for function reference), return type of the function is encoded.
   - eg. `void foo(void(*)(int))` is encoded `_Z3fooPFviE`
