@@ -9,7 +9,7 @@ void foo()
 `foo` is mangled as `_Z3foov`
 - `_Z` preambule is always here, it starts the mangled name, for OSX it would be `__Z`.
 - `3foo` function name, length encoded.
-- `v` no parameter is encoded as a `void` parameter.
+- `v` no parameter is encoded as a single `void` parameter.
 
 Note: the return type is not encoded here (although there are cases where it is encoded: function pointers and funtion template instances)
 
