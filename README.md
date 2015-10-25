@@ -29,7 +29,7 @@ void foo(void*, void*)
 
 Note: `foo` is a declaration, not a type and so it doesn't account as a substituable symbol.
 
-## Encoding parameters
+## Parameters
 
 - Basic types are encoded using a single letter. See [Itanium C++ ABI's types mangling](https://mentorembedded.github.io/cxx-abi/abi.html#mangling-type). Basic types are never substitutable.
   - eg. `void foo(int)` is encoded `_Z3fooi`
