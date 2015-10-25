@@ -15,14 +15,27 @@ Note: the return type is not encoded here (although there are cases where it is 
 
 ### Encoding parameters
 
-Basic types are encoded using a single letter.
-eg. `void foo(int)` is encoded `_Z3fooi`
+- Basic types are encoded using a single letter. See [Itanium C++ ABI's types mangling](https://mentorembedded.github.io/cxx-abi/abi.html#mangling-type).
+  - eg. `void foo(int)` is encoded `_Z3fooi`
 
-No parameter is encoded as if a single void parameter were passed.
-eg. `void foo()` is encoded `_Z3foov`
+- No parameter is encoded as if a single void parameter were passed.
+  - eg. `void foo()` is encoded `_Z3foov`
 
-Parameters are encoded one after the other.
-eg. `void foo(char, int, short)` is encoded `_Z3foocis`
+- Parameters are encoded one after the other.
+  - eg. `void foo(char, int, short)` is encoded `_Z3foocis`
+
+- Indirections (pointer/reference) and type qualifiers are prepended to the type.
+  - eg. `void foo(int)` is encoded `_Z3fooi`
+  - eg. `void foo(const int)` is encoded `_Z3fooi`
+  - eg. `void foo(const int*)` is encoded `_Z3fooPKi`
+  - eg. `void foo(const int&)` is encoded `_Z3fooRKi`
+  - eg. `void foo(const int* const*)` is encoded `_Z3fooPKPKi`
+  - eg. `void foo(int*&)` is encoded `_Z3fooRPi`
+
+Note: `const int` is encoded as `int`, more generally constness of the type is not part of the signature (but constness of indirect types is).
+
+ - Functions are encoded between `F`..`E` and prepended with `P` for function pointer (`R` for function reference), return type of the function is encoded.
+   - eg. `void foo(void(*)(int))` is encoded `_Z3fooPFviE`
 
 ### Substitutions
 
