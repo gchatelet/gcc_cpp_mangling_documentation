@@ -13,6 +13,24 @@ void foo()
 
 Note: the return type is not encoded here (although there are cases where it is encoded: function pointers and funtion template instances)
 
+### Substitutions
+
+To save space a compression scheme is used where symbols that appears multiple times are then substituted by an item from the sequence : `S_`, `S0_`, `S1_`, `S2_`, etc ...
+
+The main added value of this document is to identify what is to be counted as a substitution.
+
+eg.
+```
+void foo(void*, void*)
+```
+`foo` would be encoded as `_Z3fooPvS_`. To be decomposed as 
+- `_Z`
+- `3foo`
+- `Pv` stands for "pointer to void". Since it's not a basic type it's accounted as a symbol.
+- `S_` refers to the first symbol encoded, here `Pv`.
+
+Note: `foo` is a declaration, not a type and so it doesn't account as a substituable symbol.
+
 ### Encoding parameters
 
 - Basic types are encoded using a single letter. See [Itanium C++ ABI's types mangling](https://mentorembedded.github.io/cxx-abi/abi.html#mangling-type).
@@ -37,22 +55,6 @@ Note: `const int` is encoded as `int`, more generally constness of the type is n
  - Functions are encoded between `F`..`E` and prepended with `P` for function pointer (`R` for function reference), return type of the function is encoded.
    - eg. `void foo(void(*)(int))` is encoded `_Z3fooPFviE`
 
-### Substitutions
-
-To save space a compression scheme is used where symbols that appears multiple times are then substituted by an item from the sequence : `S_`, `S0_`, `S1_`, `S2_`, etc ...
-
-eg.
-```
-void foo(void*, void*)
-```
-`foo` would be encoded as `_Z3fooPvS_`. To be decomposed as 
-- `_Z`
-- `3foo`
-- `Pv` stands for "pointer to void". Since it's not a basic type it's accounted as a symbol.
-- `S_` refers to the first symbol encoded, here `Pv`.
-
-Note: `foo` is a declaration, not a type and so it doesn't account as a substituable symbol.
-
 ### namespace
 
 namespaces are considered as symbols.
@@ -70,7 +72,7 @@ namespace a {
   - `foo` is encoded `3foo`
 - `a::A` is encoded `NS_1AE`
   - enclosed in `N`..`E` (symbol is nested and not in `std`)
-  - `a` is encoded `S_`
+  - `a` is encoded `S_` (see substitution section)
   - `A` is encoded `1A`
 
 Note: if namespace is `std` then it is abbreviated and nested symbol are no more enclosed in `N`..`E`
@@ -99,3 +101,16 @@ class C {
  - `C::foo` is encoded as `NK1C3fooE`
    - `K` is added at the beginning of the symbol because `foo` is `const`.
    - It is enclosed by `N`..`E` (symbol is nested)
+
+### Template instance
+
+Templated function instances have their template parameters mangled in a special way.
+They are replaced in the parameters by an item from the sequence : `T_`, `T0_`, `T1_`, `T2_`, etc ...
+
+```
+template<typename T> T foo();
+template<> int foo() {}
+```
+`foo` is encoded as `_Z3fooIiET_v`
+ - The template parameters are encoded sequentially between `I`..`E`, here `int` encoded as `i`
+ - Since `int` is the first parameter it is encoded as `T_` in the parameter list.
