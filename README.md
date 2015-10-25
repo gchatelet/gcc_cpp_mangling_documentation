@@ -2,7 +2,7 @@ This document gathers my findings about gcc c++ name mangling.
 
 It is to be considered as supplementaty materials to the [Itanium C++ ABI's mangling section](https://mentorembedded.github.io/cxx-abi/abi.html#mangling), especially it explores what accounts as a symbol to be substituted in the case of regular functions, templates and abbreviations.
 
-### Preambule
+# Substitutions basics
 ```
 void foo()
 ```
@@ -12,8 +12,6 @@ void foo()
 - `v` no parameter is encoded as a single `void` parameter.
 
 Note: the return type is not encoded here (although there are cases where it is encoded: function pointers and funtion template instances)
-
-### Substitutions
 
 To save space a compression scheme is used where symbols that appears multiple times are then substituted by an item from the sequence : `S_`, `S0_`, `S1_`, `S2_`, etc ...
 
@@ -31,12 +29,12 @@ void foo(void*, void*)
 
 Note: `foo` is a declaration, not a type and so it doesn't account as a substituable symbol.
 
-### Encoding parameters
+## Encoding parameters
 
 - Basic types are encoded using a single letter. See [Itanium C++ ABI's types mangling](https://mentorembedded.github.io/cxx-abi/abi.html#mangling-type). Basic types are never substitutable.
   - eg. `void foo(int)` is encoded `_Z3fooi`
 
-- No parameter is encoded as if a single void parameter were passed.
+- No parameter is encoded as if a single `void` parameter were passed.
   - eg. `void foo()` is encoded `_Z3foov`
 
 - Parameters are encoded one after the other.
@@ -62,10 +60,12 @@ Note: `foo` is a declaration, not a type and so it doesn't account as a substitu
 
 Note: `const int` is encoded as `int`, more generally constness of the type is not part of the signature (but constness of indirect types is).
 
- - Functions are encoded between `F`..`E` and prepended with `P` for function pointer (`R` for function reference), return type of the function is encoded.
-   - eg. `void foo(void(*)(int))` is encoded `_Z3fooPFviE`
+- Functions are encoded between `F`..`E` and prepended with `P` for function pointer (`R` for function reference), return type of the function is encoded.
+  - eg. `void foo(void(*)(int))` is encoded `_Z3fooPFviE`
+    - `FviE` becomes `S_`
+    - `PFviE` becomes `S0_`
 
-### namespace
+## namespace
 
 namespaces are considered as symbols.
 
@@ -98,7 +98,7 @@ namespace std {
 
 Note: `std` is not substituted since it is an abbreviation.
 
-### Structs/Classes
+## Structs/Classes
 
 Member functions are encoded as if they were in a namespace with the exception of const members which starts with a `K`.
 
@@ -112,7 +112,7 @@ class C {
    - `K` is added at the beginning of the symbol because `foo` is `const`.
    - It is enclosed by `N`..`E` (symbol is nested)
 
-### Template instance
+## Template instance
 
 Templated function instances have their template parameters mangled in a special way.
 They are replaced in the parameters by an item from the sequence : `T_`, `T0_`, `T1_`, `T2_`, etc ...
