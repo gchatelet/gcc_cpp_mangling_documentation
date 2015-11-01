@@ -5,9 +5,9 @@ It is to be considered as supplementaty materials to the [Itanium C++ ABI's mang
 # Mangling basics
 
 ### global variable declaration
-The mangled name is just the name of the variable.
+As in `C` name mangling, it is just the name of the variable.
 
-eg. `int bar;` is mangled as `bar` as in `C` name mangling.
+eg. `int bar;` is mangled as `bar`.
 
 ### `const` or `nested` variable declaration
 ```
@@ -17,16 +17,16 @@ eg. `int bar;` is mangled as `bar` as in `C` name mangling.
 eg. `int* const bar;` is mangled as `_ZL3bar`
 - `_Z` preambule starts the mangled name, for OSX it would be `__Z`.
 - `L` indicates the variable is `const`
-  - Only applies to types with indirections (pointer / reference) since `const <value type>` is mangled as `<value type>`
+  - Only applies to types with indirections (pointer / reference) since `const <value_type>` is mangled as `<value_type>`
 - `3bar` variable name, length encoded.
 
 eg. `namespace a { int bar; }` is mangled as `_ZN1a3barE`
 - `_Z` preambule starts the mangled name, for OSX it would be `__Z`.
-- `N1a3barE` encoded symbol enclosed in `N`..`E` because the symbol is nested, ie. within a scope
+- `N1a3barE` encoded symbol. It is enclosed in `N`..`E` because the symbol is within a scope
   - `1a` namespace name, length encoded.
   - `3bar` variable name, length encoded.
 
-Note: the `std` namespace is special. It is abbreviated `St` and remove the need for `N`..`E` enclosing.
+**Note**: the `std` namespace is special. It is abbreviated `St` and remove the need for `N`..`E` enclosing.
 
 eg. `namespace std { int bar; }` is mangled as `_ZSt3bar`
 
@@ -40,7 +40,7 @@ eg. `void foo()` is mangled as `_Z3foov`
 - `3foo` function name, length encoded.
 - `v` no parameter is encoded as a single `void` parameter.
 
-Note: the return type is not encoded here (although there are cases where it is encoded: function pointers and funtion template instances)
+**Note**: the return type is not encoded here (although there are cases where it is encoded: function pointers and funtion template instances)
 
 ### Function template instance declaration
 ```
@@ -74,7 +74,7 @@ void foo(void*, void*)
 - `Pv` stands for "pointer to void". Since it's not a basic type it's accounted as a symbol.
 - `S_` refers to the first symbol encoded, here `Pv`.
 
-Note: `foo` is a declaration, not a type and so it doesn't account as a substituable symbol.
+**Note**: `foo` is a declaration, not a type and so it doesn't account as a substituable symbol.
 
 ## Parameters
 
@@ -105,7 +105,7 @@ Note: `foo` is a declaration, not a type and so it doesn't account as a substitu
     - `Pi` becomes `S_`
     - `RPi` becomes `S0_`
 
-Note: `const int` alone is encoded as `int`, more generally constness of the type is not part of the signature (but constness of indirect types are).
+**Note**: `const int` alone is encoded as `int`, more generally constness of the type is not part of the signature (but constness of indirect types are).
 
 - Functions are encoded between `F`..`E` and prepended with `P` for function pointer (`R` for function reference), return type of the function is encoded.
   - eg. `void foo(void(*)(int))` is encoded `_Z3fooPFviE`
@@ -132,7 +132,7 @@ namespace a {
   - `a` is encoded `S_` (see substitution section)
   - `A` is encoded `1A`
 
-Note: if namespace is `std` then it is abbreviated and nested symbol are no more enclosed in `N`..`E`
+**Note**: if namespace is `std` then it is abbreviated and nested symbol are no more enclosed in `N`..`E`
 ```
 namespace std {
 	struct A{};
@@ -143,7 +143,7 @@ namespace std {
  - `std::foo` is encoded as `St3foo`
  - `std::A` is encoded as `St1A`
 
-Note: `std` is not substituted since it is an abbreviation.
+**Note**: `std` is not substituted since it is an abbreviation.
 
 ## Structs/Classes
 
