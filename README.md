@@ -9,7 +9,7 @@ As in `C` name mangling, it is just the name of the variable.
 
 eg. `int bar;` is mangled as `bar`.
 
-### `const` or `nested` variable declaration
+### const or nested variable declaration
 ```
  _Z <symbol>
 ```
