@@ -61,7 +61,7 @@ eg. `void foo()` is mangled as `_Z3foov`
 eg.
 ```
 template <typename A> void foo(A);
-template <> void foo(int){}
+template <> void foo(int) {}
 ```
 is mangled `_Z3fooIiEvT_`:
 - `_Z` preambule is always here, it starts the mangled name, for OSX it would be `__Z`.
@@ -139,6 +139,8 @@ Function parameters are either basic types, user defined types or indirections t
 - Parameters are encoded one after the other.
   - eg. `void foo(char, int, short)` is encoded `_Z3foocis`. None of `char`, `int` or `short` are substituable.
 
+*****
+
 - Indirections (pointer/reference) and type qualifiers are prepended to the type. Each indirection / type qualifier accounts for a new symbol.
   - eg. `void foo(int)` is encoded `_Z3fooi`.
     - No substitution.
@@ -160,6 +162,8 @@ Function parameters are either basic types, user defined types or indirections t
     - `RPi` becomes `S0_`
 
 **Note**: `const int` alone is encoded as `int`, more generally constness of the type is not part of the signature (but constness of indirect types are).
+
+*****
 
 - Functions are encoded between `F`..`E` and prepended with `P` for function pointer (`R` for function reference), return type of the function is encoded.
   - eg. `void foo(void(*)(int))` is encoded `_Z3fooPFviE`
@@ -185,7 +189,7 @@ S7_                      ^^^^^^^^ : PFS3_S_E    const void*(*)(void*)
 ```
 namespace a {
 	struct A{};
-	void foo(A){}
+	void foo(A) {}
 }
 ```
 `foo` would be encoded as `_ZN1a3fooENS_1AE`
@@ -198,11 +202,13 @@ namespace a {
   - `a` is encoded `S_`
   - `A` is encoded `1A`
 
+*****
+
 **Note**: if namespace is `std` then it is abbreviated and nested symbol are no more enclosed in `N`..`E`
 ```
 namespace std {
 	struct A{};
-	void foo(A){}
+	void foo(A) {}
 }
 ```
 `foo` is encoded as `_ZSt3fooSt1A`
@@ -220,10 +226,105 @@ struct A {
 };
 ```
 `void A::foo(A::B)` is encoded `_ZN1A3fooENS_1BE`
-- `Z_`: preamble
 - `N1A3fooE`: declaration
   - `1A`: `A` is now as `S_`
   - `3foo`: name (not substituable)
 - `NS_1BE`: single parameter of type `B`
   - `S_`: `A`
   - `1B`: name, `B` is now `S0_`
+
+### More on substitutions in templates
+
+Template instances account for one substitution.
+```
+template<typename T>
+struct A {
+    void foo(A);
+};
+
+template<> void A<int>::foo(A<int>) {}
+```
+`template<> void A<int>::foo(A<int>)` is encoded as `_ZN1AIiE3fooES0_`
+- `N1AIiE3fooE`: declaration
+  - `1AIiE`: is the template instantiation
+    - `1A`: is now `S_`
+    - `IiE`: one `int` template parameter
+    - It accounts for a substitution, it is now `S0_`
+  - `3foo`: name (not substituable)
+- `S0_`: refers to `A<int>`
+
+*****
+
+Templated function parameters are substituted with `T[0-9]*_` on first use and then substituted again normally.
+```
+struct A {
+    template<typename T>
+    void foo(T, T);
+};
+
+template<> void A::foo<int>(int, int) {}
+```
+`template<> void A::foo<int>(int, int)` is encoded as `_ZN1A3fooIiEEvT_S1_`
+- `N1A3fooIiEE`: declaration
+  - `1A`: is now `S_`
+  - `3foo`: name (not substituable)
+  - `IiE`: one `int` template parameter, is now `T_`
+  - `N1A3fooIiEE` the full instantiated template is now `S0_`
+- `v`: template instance return type
+- `T_S1_` function parameters
+  - `T_`: refers to the first template parameter, is now `S1_`
+  - `S1_`
+
+*****
+
+Templated function parameters are substituted only if the declaration is templated.
+
+```
+template<typename T>
+struct A {
+    void foo(T, T);
+};
+
+template<> void A<int>::foo(int, int) {}
+```
+`template<> void A<int>::foo(int, int)` is encoded as `_ZN1AIiE3fooEii`
+- `N1AIiE3fooE`: declaration
+  - `1A`: is now `S_`
+  - `IiE`: one `int` template parameter (basic types are not substituable)
+  - `1AIiE3`: is now `S0_`
+  - `3foo`: name (not substituable)
+- `ii`: first and second parameter refers to the first template parameter but is not substituted.
+
+*****
+
+```
+struct B {};
+
+template<typename T>
+struct A {
+    void foo(T, T);
+};
+
+template <> void A<B>::foo(B, B) {}
+```
+`template <> void A<B>::foo(B, B)` is encoded as `_ZN1AI1BE3fooES0_S0_`
+- `N1AI1BE3fooE`: declaration
+  - `1A`: is now `S_`
+  - `I1BE`: one `B` template parameter is now `S0_`
+  - `1AI1BE`: is now `S1_`
+  - `3foo`: name (not substituable)
+- `S0_S0_`: `S0_` refers to `B`.
+
+*****
+
+Function template parameters are substituted.
+
+```
+template<typename A, typename B> A foo(B, A, B);
+template<> int foo(char, int, char) {}
+template<> int foo(int, int, int) {}
+```
+`template<> int foo(char, int, char)` is encoded as `_Z3fooIicET_T0_S0_S1_`
+
+`template<> int foo(int, int, int)` is encoded as `_Z3fooIiiET_T0_S0_S1_`
+
