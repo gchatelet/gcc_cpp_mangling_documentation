@@ -64,7 +64,7 @@ is mangled `_Z3fooIiEvT_`:
 - `v` the return type `void`.
 - `T_` reference to the first template parameter. Second would be `T0_`, third `T1_`, fourth `T2_`, etc ...
 
-# Substitutions basics
+### Substitutions
 
 To save space a compression scheme is used where symbols that appears multiple times are then substituted by an item from the sequence : `S_`, `S0_`, `S1_`, `S2_`, etc ...
 
@@ -82,20 +82,24 @@ void foo(void*, void*)
 
 **Note**: `foo` is a declaration, not a type and so it doesn't account as a substituable symbol.
 
-### More on function parameters
+### More on substitutions in function parameters
+
+Function parameters are either basic types, user defined types or indirections to basic or user defined types.
 
 - Basic types are encoded using a single letter. See [Itanium C++ ABI's types mangling](https://mentorembedded.github.io/cxx-abi/abi.html#mangling-type). Basic types are never substitutable.
   - eg. `void foo(int)` is encoded `_Z3fooi`
 
-- No parameter is encoded as if a single `void` parameter were passed.
-  - eg. `void foo()` is encoded `_Z3foov`
+- No parameter is seen by the compiler as a single `void` parameter.
+  - eg. `void foo()` is seen as `void foo(void)` and encoded `_Z3foov`
 
 - Parameters are encoded one after the other.
   - eg. `void foo(char, int, short)` is encoded `_Z3foocis`. None of `char`, `int` or `short` are substitutable.
 
 - Indirections (pointer/reference) and type qualifiers are prepended to the type. Each indirection / type qualifier accounts for a new symbol.
-  - eg. `void foo(int)` is encoded `_Z3fooi`. No substitution.
-  - eg. `void foo(const int)` is encoded `_Z3fooi`. No substitution.
+  - eg. `void foo(int)` is encoded `_Z3fooi`.
+    - No substitution.
+  - eg. `void foo(const int)` is encoded `_Z3fooi`.
+    - No substitution.
   - eg. `void foo(const int*)` is encoded `_Z3fooPKi`
     - `Ki` becomes `S_`
     - `PKi` becomes `S0_`
@@ -118,7 +122,7 @@ void foo(void*, void*)
     - `FviE` becomes `S_`
     - `PFviE` becomes `S0_`
 
-## namespace
+### More on substitutions in namespaces
 
 namespaces are considered as symbols.
 
@@ -151,9 +155,9 @@ namespace std {
 
 **Note**: `std` is not substituted since it is an abbreviation.
 
-## Structs/Classes
+### More on Structs/Classes substitutions
 
-Member functions are encoded as if they were in a namespace with the exception of const members which starts with a `K`.
+Member functions are encoded as if they were in a namespace. Const members starts with `K`.
 
 ```
 class C {
