@@ -168,15 +168,15 @@ Function parameters are either basic types, user defined types or indirections t
 	- eg. `void foo(void*(*)(void*),void*(*)(const void*),const void*(*)(void*));` is encoded `_Z3fooPFPvS_EPFS_PKvEPFS3_S_E` with the following substitutions
 ```
     _Z3fooPFPvS_EPFS_PKvEPFS3_S_E
-S_          ^^                    -> void*
-S0_        ^^^^^^                 -> void*()(void*)
-S1_       ^^^^^^^                 -> void*(*)(void*)
-S2_                   ^^          -> const void
-S3_                  ^^^          -> const void*
-S4_               ^^^^^^^         -> void*()(const void*)
-S5_              ^^^^^^^^         -> void*(*)(const void*)
-S6_                       ^^^^^^^ -> const void*()(void*)
-S7_                      ^^^^^^^^ -> const void*(*)(void*)
+S_          ^^                    : Pv          void*
+S0_        ^^^^^^                 : FPvS_E      void*()(void*)
+S1_       ^^^^^^^                 : PFPvS_E     void*(*)(void*)
+S2_                   ^^          : Kv const    void
+S3_                  ^^^          : PKv const   void*
+S4_               ^^^^^^^         : FS_PKvE     void*()(const void*)
+S5_              ^^^^^^^^         : PFS_PKvE    void*(*)(const void*)
+S6_                       ^^^^^^^ : FS3_S_E     const void*()(void*)
+S7_                      ^^^^^^^^ : PFS3_S_E    const void*(*)(void*)
 ```
 ### More on substitutions in namespaces
 
