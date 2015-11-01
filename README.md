@@ -4,10 +4,10 @@ It is to be considered as supplementaty materials to the [Itanium C++ ABI's mang
 
 # Mangling basics
 
-For **global variable declaration**, the mangled name is just the name of the variable.
+1. For **global variable declaration**, the mangled name is just the name of the variable.
 eg. `int bar;` is mangled as `bar`
 
-For **variable declaration**:
+2. For **variable declaration**:
 ```
  _Z <symbol>
 ```
@@ -17,7 +17,7 @@ eg. `namespace a { int bar; }` is mangled as `_ZN1a3barE`
   - `1a` namespace name, length encoded.
   - `3bar` variable name, length encoded.
 
-For **function declaration**:
+3. For **function declaration**:
 ```
  _Z <symbol> (<parameter>* | v )
 ```
@@ -29,7 +29,7 @@ eg. `void foo()` is mangled as `_Z3foov`
 
 Note: the return type is not encoded here (although there are cases where it is encoded: function pointers and funtion template instances)
 
-For **function template instance declaration**:
+4. For **function template instance declaration**:
 ```
  _Z <symbol> I<template_parameter>+E <template_return_type> (<parameter>* | v )
 ```
