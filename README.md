@@ -171,15 +171,17 @@ Function parameters are either basic types, user defined types or indirections t
 S_          ^^                    : Pv          void*
 S0_        ^^^^^^                 : FPvS_E      void*()(void*)
 S1_       ^^^^^^^                 : PFPvS_E     void*(*)(void*)
-S2_                   ^^          : Kv const    void
-S3_                  ^^^          : PKv const   void*
+S2_                   ^^          : Kv          const void
+S3_                  ^^^          : PKv         const void*
 S4_               ^^^^^^^         : FS_PKvE     void*()(const void*)
 S5_              ^^^^^^^^         : PFS_PKvE    void*(*)(const void*)
 S6_                       ^^^^^^^ : FS3_S_E     const void*()(void*)
 S7_                      ^^^^^^^^ : PFS3_S_E    const void*(*)(void*)
 ```
-### More on substitutions in namespaces
 
+### More on substitutions in scopes
+
+#### namespace
 ```
 namespace a {
 	struct A{};
@@ -209,29 +211,19 @@ namespace std {
 
 **Note**: `std` is not substituted since it is an abbreviation.
 
-### More on Structs/Classes substitutions
-
-Member functions are encoded as if they were in a namespace. Const members starts with `K`.
+#### struct / classes
 
 ```
-class C {
-	void foo() const {}
+struct A {
+    struct B{};
+    void foo(B);
 };
 ```
-`foo` is encoded as `_ZNK1C3fooEv`
- - `C::foo` is encoded as `NK1C3fooE`
-   - `K` is added at the beginning of the symbol because `foo` is `const`.
-   - It is enclosed by `N`..`E` (symbol is nested)
-
-## Template instance
-
-Templated function instances have their template parameters mangled in a special way.
-They are replaced in the parameters by an item from the sequence : `T_`, `T0_`, `T1_`, `T2_`, etc ...
-
-```
-template<typename T> T foo();
-template<> int foo() {}
-```
-`foo` is encoded as `_Z3fooIiET_v`
- - The template parameters are encoded sequentially between `I`..`E`, here `int` encoded as `i`
- - Since `int` is the first parameter it is encoded as `T_` in the parameter list.
+`void A::foo(A::B)` is encoded `_ZN1A3fooENS_1BE`
+- `Z_`: preamble
+- `N1A3fooE`: declaration
+  - `1A`: `A` is now as `S_`
+  - `3foo`: name (not substitutable)
+- `NS_1BE`: single parameter of type `B`
+  - `S_`: `A`
+  - `1B`: name, `B` is now `S0_`
