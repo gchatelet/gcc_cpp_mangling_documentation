@@ -4,14 +4,22 @@ It is to be considered as supplementaty materials to the [Itanium C++ ABI's mang
 
 # Mangling basics
 
-1. For **global variable declaration**, the mangled name is just the name of the variable.
+## global variable declaration
+The mangled name is just the name of the variable.
 
 eg. `int bar;` is mangled as `bar` as in `C` name mangling.
 
-2. For **nested variable declaration**:
+## `const` or `nested` variable declaration
 ```
  _Z <symbol>
 ```
+
+eg. `int* const bar;` is mangled as `_ZL3bar`
+- `_Z` preambule starts the mangled name, for OSX it would be `__Z`.
+- `L` indicates the variable is `const`
+  - Only applies to types with indirections (pointer / reference) since `const <value type>` is mangled as `<value type>`
+- `3bar` variable name, length encoded.
+
 eg. `namespace a { int bar; }` is mangled as `_ZN1a3barE`
 - `_Z` preambule starts the mangled name, for OSX it would be `__Z`.
 - `N1a3barE` encoded symbol enclosed in `N`..`E` because the symbol is nested, ie. within a scope
@@ -22,7 +30,7 @@ Note: the `std` namespace is special. It is abbreviated `St` and remove the need
 
 eg. `namespace std { int bar; }` is mangled as `_ZSt3bar`
 
-3. For **function declaration**:
+## Function declaration
 ```
  _Z <symbol> (<parameter>* | v )
 ```
@@ -34,7 +42,7 @@ eg. `void foo()` is mangled as `_Z3foov`
 
 Note: the return type is not encoded here (although there are cases where it is encoded: function pointers and funtion template instances)
 
-4. For **function template instance declaration**:
+## Function template instance declaration
 ```
  _Z <symbol> I<template_parameter>+E <template_return_type> (<parameter>* | v )
 ```
