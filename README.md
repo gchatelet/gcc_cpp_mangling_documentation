@@ -5,9 +5,9 @@ It is to be considered as supplementaty materials to the [Itanium C++ ABI's mang
 # Mangling basics
 
 1. For **global variable declaration**, the mangled name is just the name of the variable.
-eg. `int bar;` is mangled as `bar`
+eg. `int bar;` is mangled as `bar` as in `C` name mangling.
 
-2. For **variable declaration**:
+2. For **nested variable declaration**:
 ```
  _Z <symbol>
 ```
@@ -16,6 +16,9 @@ eg. `namespace a { int bar; }` is mangled as `_ZN1a3barE`
 - `N1a3barE` encoded symbol enclosed in `N`..`E` because the symbol is nested, ie. within a scope
   - `1a` namespace name, length encoded.
   - `3bar` variable name, length encoded.
+
+Note: the `std` namespace is special it is abbreviated `St` and remove the need for `N`..`E` enclosing.
+eg. `namespace std { int bar; }` is mangled as `_ZSt3bar`
 
 3. For **function declaration**:
 ```
