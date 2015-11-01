@@ -130,14 +130,14 @@ Sd = ::std::basic_iostream<char, ::std::char_traits<char> >
 
 Function parameters are either basic types, user defined types or indirections to basic or user defined types.
 
-- Basic types are encoded using a single letter. See [Itanium C++ ABI's types mangling](https://mentorembedded.github.io/cxx-abi/abi.html#mangling-type). Basic types are never substitutable.
+- Basic types are encoded using a single letter. See [Itanium C++ ABI's types mangling](https://mentorembedded.github.io/cxx-abi/abi.html#mangling-type). Basic types are never substituable.
   - eg. `void foo(int)` is encoded `_Z3fooi`
 
 - No parameter is seen by the compiler as a single `void` parameter.
   - eg. `void foo()` is seen as `void foo(void)` and encoded `_Z3foov`
 
 - Parameters are encoded one after the other.
-  - eg. `void foo(char, int, short)` is encoded `_Z3foocis`. None of `char`, `int` or `short` are substitutable.
+  - eg. `void foo(char, int, short)` is encoded `_Z3foocis`. None of `char`, `int` or `short` are substituable.
 
 - Indirections (pointer/reference) and type qualifiers are prepended to the type. Each indirection / type qualifier accounts for a new symbol.
   - eg. `void foo(int)` is encoded `_Z3fooi`.
@@ -223,7 +223,7 @@ struct A {
 - `Z_`: preamble
 - `N1A3fooE`: declaration
   - `1A`: `A` is now as `S_`
-  - `3foo`: name (not substitutable)
+  - `3foo`: name (not substituable)
 - `NS_1BE`: single parameter of type `B`
   - `S_`: `A`
   - `1B`: name, `B` is now `S0_`
