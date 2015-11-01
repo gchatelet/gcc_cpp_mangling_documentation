@@ -4,12 +4,12 @@ It is to be considered as supplementaty materials to the [Itanium C++ ABI's mang
 
 # Mangling basics
 
-## global variable declaration
+### global variable declaration
 The mangled name is just the name of the variable.
 
 eg. `int bar;` is mangled as `bar` as in `C` name mangling.
 
-## `const` or `nested` variable declaration
+### `const` or `nested` variable declaration
 ```
  _Z <symbol>
 ```
@@ -30,7 +30,7 @@ Note: the `std` namespace is special. It is abbreviated `St` and remove the need
 
 eg. `namespace std { int bar; }` is mangled as `_ZSt3bar`
 
-## Function declaration
+### Function declaration
 ```
  _Z <symbol> (<parameter>* | v )
 ```
@@ -42,7 +42,7 @@ eg. `void foo()` is mangled as `_Z3foov`
 
 Note: the return type is not encoded here (although there are cases where it is encoded: function pointers and funtion template instances)
 
-## Function template instance declaration
+### Function template instance declaration
 ```
  _Z <symbol> I<template_parameter>+E <template_return_type> (<parameter>* | v )
 ```
