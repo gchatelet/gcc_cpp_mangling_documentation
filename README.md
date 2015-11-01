@@ -2,7 +2,7 @@ This document gathers my findings about gcc c++ name mangling.
 
 It is to be considered as supplementaty materials to the [Itanium C++ ABI's mangling section](https://mentorembedded.github.io/cxx-abi/abi.html#mangling), especially it explores what accounts as a symbol to be substituted in the case of regular functions, templates and abbreviations.
 
-# Mangling basics
+## Mangling basics
 
 ### Global variable declaration
 As in `C` name mangling, it is just the name of the variable.
@@ -11,9 +11,6 @@ eg. `int bar;` is mangled as `bar`.
 eg. `void(*baz)(int);` is mangled as `baz`.
 
 ### Const or nested variable declaration
-```
- _Z <symbol>
-```
 
 eg. `int* const bar;` is mangled as `_ZL3bar`
 - `_Z` preambule starts the mangled name.
@@ -38,7 +35,7 @@ eg. `namespace std { int bar; }` is mangled as `_ZSt3bar`
 
 ### Function declaration
 ```
- _Z <symbol> (<parameter>+ | v )
+ _Z <declaration> (<parameter>+ | v )
 ```
 
 `<parameter>` is defined as `((P|R)(K)?)*(<basic_type>|<function>|<user_type>)`
@@ -59,7 +56,7 @@ eg. `void foo()` is mangled as `_Z3foov`
 
 ### Function template instance declaration
 ```
- _Z <symbol> I<template_parameter>+E <template_return_type> (<parameter>+ | v )
+ _Z <declaration> I<template_parameter>+E <template_return_type> (<parameter>+ | v )
 ```
 eg.
 ```
@@ -73,7 +70,7 @@ is mangled `_Z3fooIiEvT_`:
 - `v` the return type `void`.
 - `T_` reference to the first template parameter. Second would be `T0_`, third `T1_`, fourth `T2_`, etc ...
 
-### Declaration and user type encoding
+### Declaration and user defined type encoding
 
 Declaration and user defined types are encoded with their scope
 
@@ -102,7 +99,7 @@ namespace a {
 
 To save space a compression scheme is used where symbols that appears multiple times are then substituted by an item from the sequence : `S_`, `S0_`, `S1_`, `S2_`, etc ...
 
-The main added value of this document is to identify what is to be counted as a substitution.
+**The main added value of this document is to identify what is to be counted as a substitution.**
 
 eg.
 ```
@@ -168,7 +165,19 @@ Function parameters are either basic types, user defined types or indirections t
   - eg. `void foo(void(*)(int))` is encoded `_Z3fooPFviE`
     - `FviE` becomes `S_`
     - `PFviE` becomes `S0_`
-
+	- eg. `void foo(void*(*)(void*),void*(*)(const void*),const void*(*)(void*));` is encoded `_Z3fooPFPvS_EPFS_PKvEPFS3_S_E` with the following substitutions
+```
+    _Z3fooPFPvS_EPFS_PKvEPFS3_S_E
+S_          ^^                    -> void*
+S0_        ^^^^^^                 -> void*()(void*)
+S1_       ^^^^^^^                 -> void*(*)(void*)
+S2_                   ^^          -> const void
+S3_                  ^^^          -> const void*
+S4_               ^^^^^^^         -> void*()(const void*)
+S5_              ^^^^^^^^         -> void*(*)(const void*)
+S6_                       ^^^^^^^ -> const void*()(void*)
+S7_                      ^^^^^^^^ -> const void*(*)(void*)
+```
 ### More on substitutions in namespaces
 
 ```
