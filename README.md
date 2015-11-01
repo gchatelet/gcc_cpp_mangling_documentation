@@ -32,7 +32,7 @@ eg. `namespace std { int bar; }` is mangled as `_ZSt3bar`
 
 ### Function declaration
 ```
- _Z <symbol> (<parameter>* | v )
+ _Z <symbol> (<parameter>+ | v )
 ```
 
 eg. `void foo()` is mangled as `_Z3foov`
@@ -44,7 +44,7 @@ eg. `void foo()` is mangled as `_Z3foov`
 
 ### Function template instance declaration
 ```
- _Z <symbol> I<template_parameter>+E <template_return_type> (<parameter>* | v )
+ _Z <symbol> I<template_parameter>+E <template_return_type> (<parameter>+ | v )
 ```
 eg.
 ```
