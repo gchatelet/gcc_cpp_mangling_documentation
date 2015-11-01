@@ -4,13 +4,13 @@ It is to be considered as supplementaty materials to the [Itanium C++ ABI's mang
 
 # Mangling basics
 
-### global variable declaration
+### Global variable declaration
 As in `C` name mangling, it is just the name of the variable.
 
 eg. `int bar;` is mangled as `bar`.
 eg. `void(*baz)(int);` is mangled as `baz`.
 
-### const or nested variable declaration
+### Const or nested variable declaration
 ```
  _Z <symbol>
 ```
@@ -41,8 +41,17 @@ eg. `namespace std { int bar; }` is mangled as `_ZSt3bar`
  _Z <symbol> (<parameter>+ | v )
 ```
 
+`<parameter>` is defined as `((P|R)(K)?)*(<basic_type>|<function>|<user_type>)`
+with:
+ - `P` for pointer
+ - `R` for reference
+ - `K` for const
+ - `<basic_type>` for one of [C++ basic types](http://en.cppreference.com/w/cpp/language/types)
+ - `<function>` are encoded between `F`..`E`, return type of the function is encoded before parameters
+ - `<user_type>` are encoded between `N`..`E` when nested (TODO add definition) and describe the whole hierarchy of types.
+
 eg. `void foo()` is mangled as `_Z3foov`
-- `_Z` preambule is always here, it starts the mangled name, for OSX it would be `__Z`.
+- `_Z` preambule is always here.
 - `3foo` function name, length encoded.
 - `v` no parameter is encoded as a single `void` parameter.
 
@@ -64,6 +73,31 @@ is mangled `_Z3fooIiEvT_`:
 - `v` the return type `void`.
 - `T_` reference to the first template parameter. Second would be `T0_`, third `T1_`, fourth `T2_`, etc ...
 
+### Declaration and user type encoding
+
+Declaration and user defined types are encoded with their scope
+
+```
+namespace a {
+    struct S {
+        void foo();
+        void const_foo() const;
+    };
+}
+```
+- `foo` is mangled `_ZN1a1S3fooEv`:
+  - `N1a1S3fooE`: `a::S::foo`, foo is nested since it's within `S` and `a` so it is enclosed in `N`..`E`
+    - `1a`
+    - `1S`
+    - `3foo`
+  - `v`: because there is no parameters (encoded as a single `void` parameter).
+- `const_foo` is mangled `_ZNK1a1S9const_fooEv`:
+  - `NK1a1S9const_fooE`: `a::S::foo`, foo is nested since it's within `S` and `a` so it is enclosed in `N`..`E`
+    - `K` because type `S` is `const` in the context of `foo`
+    - `1a`
+    - `1S`
+    - `9const_foo`
+
 ### Substitutions
 
 To save space a compression scheme is used where symbols that appears multiple times are then substituted by an item from the sequence : `S_`, `S0_`, `S1_`, `S2_`, etc ...
@@ -81,6 +115,19 @@ void foo(void*, void*)
 - `S_` refers to the first symbol encoded, here `Pv`.
 
 **Note**: `foo` is a declaration, not a type and so it doesn't account as a substituable symbol.
+
+### Abbreviations
+
+Some symbols are recognized as special and are never substituted
+```
+St = ::std::
+Sa = ::std::allocator
+Sb = ::std::basic_string
+Ss = ::std::basic_string<char, ::std::char_traits<char>, ::std::allocator<char> >
+Si = ::std::basic_istream<char, ::std::char_traits<char> >
+So = ::std::basic_ostream<char, ::std::char_traits<char> >
+Sd = ::std::basic_iostream<char, ::std::char_traits<char> >
+```
 
 ### More on substitutions in function parameters
 
@@ -124,8 +171,6 @@ Function parameters are either basic types, user defined types or indirections t
 
 ### More on substitutions in namespaces
 
-namespaces are considered as symbols.
-
 ```
 namespace a {
 	struct A{};
@@ -139,7 +184,7 @@ namespace a {
   - `foo` is encoded `3foo`
 - `a::A` is encoded `NS_1AE`
   - enclosed in `N`..`E` (symbol is nested and not in `std`)
-  - `a` is encoded `S_` (see substitution section)
+  - `a` is encoded `S_`
   - `A` is encoded `1A`
 
 **Note**: if namespace is `std` then it is abbreviated and nested symbol are no more enclosed in `N`..`E`
