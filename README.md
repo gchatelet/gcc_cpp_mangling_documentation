@@ -2,16 +2,50 @@ This document gathers my findings about gcc c++ name mangling.
 
 It is to be considered as supplementaty materials to the [Itanium C++ ABI's mangling section](https://mentorembedded.github.io/cxx-abi/abi.html#mangling), especially it explores what accounts as a symbol to be substituted in the case of regular functions, templates and abbreviations.
 
-# Substitutions basics
+# Mangling basics
+
+For **global variable declaration**, the mangled name is just the name of the variable.
+eg. `int bar;` is mangled as `bar`
+
+For **variable declaration**:
 ```
-void foo()
+ _Z <symbol>
 ```
-`foo` is mangled as `_Z3foov`
+eg. `namespace a { int bar; }` is mangled as `_ZN1a3barE`
+- `_Z` preambule starts the mangled name, for OSX it would be `__Z`.
+- `N1a3barE` encoded symbol enclosed in `N`..`E` because the symbol is nested, ie. within a scope
+  - `1a` namespace name, length encoded.
+  - `3bar` variable name, length encoded.
+
+For **function declaration**:
+```
+ _Z <symbol> (<parameter>* | v )
+```
+
+eg. `void foo()` is mangled as `_Z3foov`
 - `_Z` preambule is always here, it starts the mangled name, for OSX it would be `__Z`.
 - `3foo` function name, length encoded.
 - `v` no parameter is encoded as a single `void` parameter.
 
 Note: the return type is not encoded here (although there are cases where it is encoded: function pointers and funtion template instances)
+
+For **function template instance declaration**:
+```
+ _Z <symbol> I<template_parameter>+E <template_return_type> (<parameter>* | v )
+```
+eg.
+```
+template <typename A> void foo(A);
+template <> void foo(int){}
+```
+is mangled `_Z3fooIiEvT_`:
+- `_Z` preambule is always here, it starts the mangled name, for OSX it would be `__Z`.
+- `3foo` function name, length encoded.
+- `IiE` template parameter `int` is enclosed in `I`..`E`
+- `v` the return type `void`.
+- `T_` reference to the first template parameter. Second would be `T0_`, third `T1_`, fourth `T2_`, etc ...
+
+# Substitutions basics
 
 To save space a compression scheme is used where symbols that appears multiple times are then substituted by an item from the sequence : `S_`, `S0_`, `S1_`, `S2_`, etc ...
 
