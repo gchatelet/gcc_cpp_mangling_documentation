@@ -8,6 +8,7 @@ It is to be considered as supplementaty materials to the [Itanium C++ ABI's mang
 As in `C` name mangling, it is just the name of the variable.
 
 eg. `int bar;` is mangled as `bar`.
+eg. `void(*baz)(int);` is mangled as `baz`.
 
 ### const or nested variable declaration
 ```
@@ -15,13 +16,18 @@ eg. `int bar;` is mangled as `bar`.
 ```
 
 eg. `int* const bar;` is mangled as `_ZL3bar`
-- `_Z` preambule starts the mangled name, for OSX it would be `__Z`.
+- `_Z` preambule starts the mangled name.
 - `L` indicates the variable is `const`
   - Only applies to types with indirections (pointer / reference) since `const <value_type>` is mangled as `<value_type>`
 - `3bar` variable name, length encoded.
 
+eg. `void(* const baz)(int) = nullptr;` is mangled as `_ZL3baz`
+- `_Z` preambule starts the mangled name.
+- `L` indicates the variable is `const`
+- `3baz` variable name, length encoded.
+
 eg. `namespace a { int bar; }` is mangled as `_ZN1a3barE`
-- `_Z` preambule starts the mangled name, for OSX it would be `__Z`.
+- `_Z` preambule starts the mangled name.
 - `N1a3barE` encoded symbol. It is enclosed in `N`..`E` because the symbol is within a scope
   - `1a` namespace name, length encoded.
   - `3bar` variable name, length encoded.
@@ -76,7 +82,7 @@ void foo(void*, void*)
 
 **Note**: `foo` is a declaration, not a type and so it doesn't account as a substituable symbol.
 
-## Parameters
+### More on function parameters
 
 - Basic types are encoded using a single letter. See [Itanium C++ ABI's types mangling](https://mentorembedded.github.io/cxx-abi/abi.html#mangling-type). Basic types are never substitutable.
   - eg. `void foo(int)` is encoded `_Z3fooi`
