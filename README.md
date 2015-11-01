@@ -38,7 +38,7 @@ eg. `namespace std { int bar; }` is mangled as `_ZSt3bar`
  _Z <declaration> (<parameter>+ | v )
 ```
 
-`<parameter>` is defined as `((P|R)(K)?)*(<basic_type>|<function>|<user_type>)`
+`<parameter>` is defined as `([PR]K?)*(<basic_type>|<function>|<user_type>)`
 with:
  - `P` for pointer
  - `R` for reference
@@ -325,6 +325,12 @@ template<> int foo(char, int, char) {}
 template<> int foo(int, int, int) {}
 ```
 `template<> int foo(char, int, char)` is encoded as `_Z3fooIicET_T0_S0_S1_`
+- `3fooIicE`: is now `S_`
+- `T_`: `int` is now `S0_`
+- `T0_`: `char` is now `S1_`
 
 `template<> int foo(int, int, int)` is encoded as `_Z3fooIiiET_T0_S0_S1_`
+- `3fooIiiE`: is now `S_`
+- `T_`: `int` is now `S0_`
+- `T0_`: `int` is now `S1_`
 
