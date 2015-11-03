@@ -326,11 +326,11 @@ template<> int foo(int, int, int) {}
 ```
 `template<> int foo(char, int, char)` is encoded as `_Z3fooIicET_T0_S0_S1_`
 - `3fooIicE`: is now `S_`
-- `T_`: `int` is now `S0_`
+- `T_`: The return type of the function. `int` is now `S0_`
 - `T0_`: `char` is now `S1_`
 
 `template<> int foo(int, int, int)` is encoded as `_Z3fooIiiET_T0_S0_S1_`
 - `3fooIiiE`: is now `S_`
-- `T_`: `int` is now `S0_`
+- `T_`: The return type of the function. `int` is now `S0_`
 - `T0_`: `int` is now `S1_`
 
