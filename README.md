@@ -8,6 +8,7 @@ It is to be considered as supplementaty materials to the [Itanium C++ ABI's mang
 As in `C` name mangling, it is just the name of the variable.
 
 eg. `int bar;` is mangled as `bar`.
+
 eg. `void(*baz)(int);` is mangled as `baz`.
 
 ### Const or nested variable declaration
