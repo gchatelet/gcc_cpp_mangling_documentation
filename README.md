@@ -1,6 +1,6 @@
 This document gathers my findings about gcc c++ name mangling.
 
-It is to be considered as supplementaty materials to the [Itanium C++ ABI's mangling section](https://mentorembedded.github.io/cxx-abi/abi.html#mangling), especially it explores what accounts as a symbol to be substituted in the case of regular functions, templates and abbreviations.
+It is to be considered as supplementaty materials to the [Itanium C++ ABI's mangling section](https://itanium-cxx-abi.github.io/cxx-abi/abi.html#mangling), especially it explores what accounts as a symbol to be substituted in the case of regular functions, templates and abbreviations.
 
 ## Mangling basics
 
